@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat with {{ other_user }}</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="container mt-4">
+    <h2>Chat with {{ other_user }}</h2>
+    <a href="/chat">Vissza</a>
+
+    <div id="chatBox" style="height: 300px; overflow-y: scroll;"></div>
+
+    <input type="text" id="message" placeholder="Írj üzenetet">
+    <button id="sendBtn">Küldés</button>
+
+    <script>
+        function loadMessages() {
+            $.getJSON("/get_private_messages/{{ chat_id }}", function(data) {
+                $("#chatBox").empty();
+                data.forEach(msg => {
+                    $("#chatBox").append(`<p><strong>${msg.sender}:</strong> ${msg.message}</p>`);
+                });
+            });
+        }
+
+        $("#sendBtn").click(function() {
+            $.ajax({
+                url: "/send_private",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ receiver: "{{ other_user }}", message: $("#message").val() }),
+                success: function() {
+                    $("#message").val("");
+                    loadMessages();
+                }
+            });
+        });
+
+        setInterval(loadMessages, 2000);
+    </script>
+</body>
+</html>
