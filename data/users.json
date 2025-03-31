@@ -1,10 +1,16 @@
 [
     {
         "username": "Alice",
-        "password": "a"
+        "id": 1001,
+        "password": "a",
+        "status": "online",
+        "profile_pic": "../static/profilpic.png"
     },
     {
         "username": "Bob",
-        "password": "b"
+        "id": 1002,
+        "password": "b",
+        "status": "online",
+        "profile_pic": "../static/profilpic.png"
     }
 ]

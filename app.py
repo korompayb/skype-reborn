@@ -15,7 +15,7 @@ os.makedirs(app.config["SESSION_FILE_DIR"], exist_ok=True)
 Session(app)
 
 # JSON files
-MESSAGES_FILE = "data/messages.json"
+MESSAGES_FILE = "data/conversations.json"
 CONVERSATIONS_FILE = "data/conversations.json"
 USERS_FILE = "data/users.json"
 
@@ -31,16 +31,22 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
 
-        with open(USERS_FILE, "r") as f:
+        with open(USERS_FILE, "r+") as f:
             users = json.load(f)
 
-        # Check if the user exists and the password matches
-        for user in users:
-            if user["username"] == username and user["password"] == password:
-                session["username"] = username
-                return redirect("/chat")
+            for user in users:
+                if user["username"] == username and user["password"] == password:
+                    user["status"] = "online"  # Státusz módosítása
+                    session["username"] = username
+                    
+                    # Frissített adatok visszaírása a JSON-fájlba
+                    f.seek(0)
+                    json.dump(users, f, indent=4)
+                    f.truncate()
 
-        return "Invalid username or password", 401  # Unauthorized
+                    return redirect("/chat")  # Sikeres bejelentkezés
+
+        return "Invalid username or password", 401  # Ha nem találja a felhasználót
 
     return render_template("login.html")
 
@@ -71,53 +77,82 @@ def register():
 def chat():
     if "username" not in session:
         return redirect("/")
-    return render_template("chat.html", username=session["username"])
+
+    with open(USERS_FILE, "r") as f:
+        users = json.load(f)
+
+    # Megkeressük a bejelentkezett felhasználót
+    user = next((u for u in users if u["username"] == session["username"]), None)
+
+    if not user:
+        return redirect("/")
+
+    return render_template("chat.html", username=user["username"], user=user)
+
 
 @app.route("/get_users")
 def get_users():
     with open(USERS_FILE, "r") as f:
         users = json.load(f)
-    return jsonify([user["username"] for user in users])  # Return only usernames
 
-@app.route("/private_chat/<other_user>")
-def private_chat(other_user):
-    if "username" not in session:
-        return redirect("/")
-    
-    username = session["username"]
-    chat_id = "_".join(sorted([username, other_user]))
-    return render_template("private_chat.html", username=username, other_user=other_user, chat_id=chat_id)
+    return jsonify([
+        {"username": user["username"], "status": user["status"], "profile_pic": user.get("profile_pic", "/default.png")}
+        for user in users if user["username"] != session.get("username")
+    ])
+
+
+@app.route("/get_private_messages/<other_user>")
+def get_private_messages(other_user):
+    with open(MESSAGES_FILE, "r") as f:
+        messages = json.load(f)
+
+    chat_id = sorted([session["username"], other_user])  # Egységes chat ID
+    chat_id = "_".join(chat_id)
+
+    return jsonify(messages.get(chat_id, []))  # Ha nincs beszélgetés, üres lista
+
 
 @app.route("/send_private", methods=["POST"])
 def send_private():
     data = request.get_json()
-    sender = session["username"]
     receiver = data["receiver"]
     message = data["message"]
 
-    chat_id = "_".join(sorted([sender, receiver]))
+    with open(MESSAGES_FILE, "r") as f:
+        messages = json.load(f)
 
-    with open(CONVERSATIONS_FILE, "r+") as f:
-        conversations = json.load(f)
-        if chat_id not in conversations:
-            conversations[chat_id] = []
-        conversations[chat_id].append({"sender": sender, "message": message})
-        f.seek(0)
-        json.dump(conversations, f, indent=4)
+    chat_id = sorted([session["username"], receiver])
+    chat_id = "_".join(chat_id)
 
-    return jsonify({"status": "Message Sent"})
+    if chat_id not in messages:
+        messages[chat_id] = []
 
-@app.route("/get_private_messages/<chat_id>")
-def get_private_messages(chat_id):
-    with open(CONVERSATIONS_FILE, "r") as f:
-        conversations = json.load(f)
-    return jsonify(conversations.get(chat_id, []))
+    messages[chat_id].append({"sender": session["username"], "message": message})
+
+    with open(MESSAGES_FILE, "w") as f:
+        json.dump(messages, f)
+
+    return jsonify({"status": "success"})
+
 
 @app.route("/logout")
 def logout():
-    if "username" in session:
+    username = session.get("username")
+    if username:
+        with open(USERS_FILE, "r+") as f:
+            users = json.load(f)
+            for user in users:
+                if user["username"] == username:
+                    user["status"] = "offline"
+                    break
+            f.seek(0)
+            json.dump(users, f, indent=4)
+            f.truncate()
         session.pop("username", None)
     return redirect("/")
 
+""" if __name__ == "__main__":
+    app.run(port=5000, host='0.0.0.0', threaded=True) """
+
 if __name__ == "__main__":
-    app.run(port=5000, host='0.0.0.0', threaded=True)
+    app.run(debug=True , port=5000)

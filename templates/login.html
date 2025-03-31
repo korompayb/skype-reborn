@@ -3,30 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <style>
-        .body {
-            background-color: #0281ca;
-            background-image: url('static/login_background.png');
-        }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-        
-        
-    </style>
 </head>
 
-<body class="container mt-4">
-    <h2>Bejelentkezés</h2>
-    <form method="POST">
-        <div class="mb-3">
-            <label for="username" class="form-label">Felhasználónév</label>
-            <input type="text" class="form-control" id="username" name="username" required>
-        </div>
-        <div class="mb-3">
-            <label for="password" class="form-label">Jelszó</label>
-            <input type="password" class="form-control" id="password" name="password" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Bejelentkezés</button>
-        <a href="/register" class="btn btn-secondary">Regisztráció</a>
-    </form>
+<body>
+    <div class="panel1">
+        <form method="POST">
+            <div>
+                <div class="flexoldal"><label for="username" >Felhasználónév </label><a href="">Skype vagy Hotmail</a></div>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div>
+                <div class="flexoldal"><label for="password" >Jelszó</label> <a href="">problems signing in?</a></div>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <div>
+                {% if error %}
+                    <p class="error">{{ error }}</p>
+                {% endif %}
+                {% if success %}
+                    <p class="success">{{ success }}</p>
+                {% endif %}
+            </div>
+            <div class="gombok">
+                <button type="submit">Bejelentkezés</button>
+                <label for="">vagy</label>
+                <a href="/register">Regisztráció</a>
+            </div>
+        </form>
+    </div>
+    <div class = "vertical"></div>
+    <div class="panel2">
+
+        <img src="{{ url_for('static', filename='skype.png') }}" alt="">
+        <h4 style="color: white;">Üdvözöljük a weboldalon!</h4>
+    </div>
 </body>
 </html>

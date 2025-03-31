@@ -1,0 +1,164 @@
+@font-face {
+    font-family: 'skypefont';
+    src: url('../fonts/BPreplayBold.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #00b0ef;
+    background-image: url('../background.png');
+    background-size:cover;
+    justify-content: center;
+    gap: 10%;
+    overflow: hidden;
+}
+
+@media screen and (min-width: 1921px) {
+    body {
+        gap: 10%;
+        background-image: url('../background_wide.png');
+    }
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1920px) {
+    body {
+        gap: 10%;
+        background-image: url('../background.png');
+    }
+}
+
+@media screen and (min-width: 769px) and (max-width: 1023px) {
+    body {
+        gap: 5%;
+        background-image: url('../login_background.png');
+    }
+}
+
+@media screen and (max-width: 768px) {
+    body {
+        flex-direction: column-reverse;
+        gap: 20px;
+        background-image: url('../background-sm.png');
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .vertical {
+        display: none;
+    }
+
+    form {
+        width: 90%;
+        max-width: 300px;
+    }
+}
+
+h2 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+form {
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+}
+
+div {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: #ececec;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #77c2ee8c;
+    color: #4a6d83 !important;
+    padding: 10px 15px;
+    border: 1px solid #0785b9;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 50%;
+    margin-bottom: 10px;
+}
+
+button:hover {
+    background-color: #009dd7;
+    color: #ffffff !important;
+}
+
+a {
+    display: block;
+    text-align: center;
+    font-weight: bold;
+    color: #ebebeb;
+    text-decoration: none;
+    padding: 10px 5px;
+    font-size: small;
+}
+
+a:hover {
+    color: #bbbbbb;
+}
+
+.gombok {
+    display: flex;
+    justify-content: space-between;
+    vertical-align: middle;
+
+}
+
+.gombok label {
+    padding: 10px 10px;
+}
+
+.flexoldal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    vertical-align: middle;
+    margin-bottom: 0 !important;
+}
+
+.vertical {
+    background: linear-gradient(to bottom, 
+        transparent,
+        rgba(255, 255, 255, 0.5) 20%,
+        rgba(255, 255, 255, 0.5) 80%,
+        transparent
+    );
+    width: 2px;
+    height: 200px;
+}
+
+.banner {
+    font-family: skypefont;
+    font-size: 70px;
+    font-weight: bold;
+    color: #00b0ef;
+    text-align: center;
+    -webkit-text-stroke: 5px white;
+    
+    width: 100%;
+}
