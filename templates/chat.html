@@ -256,7 +256,7 @@
             });
         }
     
-        function loadMessages() {
+        function loadMessages(username) {
             // Kérd le a felhasználó adatait, hogy elérd a profilképet
             $.getJSON("/get_users" ,function(data) {
                 data.forEach(user => {
