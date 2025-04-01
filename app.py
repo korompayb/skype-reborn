@@ -134,6 +134,31 @@ def send_private():
 
     return jsonify({"status": "success"})
 
+@app.route("/update_status", methods=["POST"])
+def update_status():
+    if "username" not in session:
+        return jsonify({"error": "Not logged in"}), 401
+
+    data = request.get_json()
+    new_status = data.get("status")
+
+    if not new_status:
+        return jsonify({"error": "Invalid status"}), 400
+
+    with open(USERS_FILE, "r+") as f:
+        users = json.load(f)
+
+        for user in users:
+            if user["username"] == session["username"]:
+                user["status"] = new_status
+                break
+
+        f.seek(0)
+        json.dump(users, f, indent=4)
+        f.truncate()
+
+    return jsonify({"message": "Status updated!", "status": new_status})
+
 
 @app.route("/logout")
 def logout():
@@ -151,8 +176,8 @@ def logout():
         session.pop("username", None)
     return redirect("/")
 
-if __name__ == "__main__":
-    app.run( debug=True,port=5000, host='0.0.0.0', threaded=True)
-
 """ if __name__ == "__main__":
-    app.run(debug=True , port=5000) """
+    app.run( debug=True,port=5000, host='0.0.0.0', threaded=True) """
+
+if __name__ == "__main__":
+    app.run(debug=True , port=5000)

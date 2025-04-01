@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Chat</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
     <style>
         body {
             margin: 0;
@@ -50,6 +52,8 @@
             flex-direction: column;
             padding: 20px;
             background-color: #fff;
+            height: calc(100vh - 60px); /* csökkentett magasság, hogy elférjen az üzenetküldő */
+            overflow: hidden;
         }
         .messages {
             flex: 1;
@@ -76,18 +80,20 @@
             background-color: #e9ecef;
         }
         .message-bubble {
-            max-width: 70%;
+            max-width: 60%;
             margin: 10px;
             padding: 10px 15px;
-            border-radius: 15px;
+            border-radius: 10px;
         }
         .message-sent {
             background-color: #0078ca;
             color: white;
             margin-left: auto;
+            width: fit-content;
         }
         .message-received {
             background-color: #f1f1f1;
+            width: fit-content;
         }
 
         .menubar {
@@ -124,14 +130,21 @@
             border-bottom: 1px solid #ddd;
             cursor: pointer;
             list-style-type: none;
+            display: flex        ;
+            align-items:center;
+            vertical-align: middle;
+            margin-left: 10px;
         }
-
         .list-group-item a {
             text-decoration: none;
             color: black;
             font-weight: bold;
             font-size: 20px;
             border-bottom: 1px solid black;
+        }
+
+        .list-group-item .spanStatus {
+            margin-left: auto;
         }
 
         .list-group-item:hover {
@@ -148,8 +161,10 @@
         }
 
         .status {
-            width: 30px;
-            height: 30px;
+            width: 20px;
+            height: 20px;
+            display: block;
+            background-size: cover;
         }
 
         .flexcontainer {
@@ -157,6 +172,46 @@
             vertical-align: middle;
             align-items: center;
             justify-content: space-evenly;
+        }
+
+        .custom-select {
+            position: relative;
+            width: auto;
+            cursor: pointer;
+        }
+        .selected-option {
+            background-color:transparent;
+            padding: 10px;
+            border: 1px solid none;
+        }
+        .options-list {
+            display: none;
+            position: absolute;
+            width: 100%;
+            background: linear-gradient(to bottom, #fefefe 0%, #d1d1d1 50%, #dbdbdb 55%, #e2e2e2 100%);
+            border-top: 1px solid #fff;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+            box-shadow: inset 0 2px 0 #fff;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
+            color: #666;
+            z-index: 10;
+            border: grey 1px solid;
+        }
+
+        .option {
+            padding: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .option:hover {
+            background-color: #f0f0f0;
+        }
+
+        .status-icon {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            background-size: cover;
         }
 
         .online {
@@ -178,17 +233,17 @@
         .chatIcon {
             width:  64px;
             height: 64px;
-            display: none;
+            
         }
 
         .chatBox-header {
+            display: none;
             background: linear-gradient(to bottom, #fefefe 0%, #d1d1d1 50%, #dbdbdb 55%, #e2e2e2 100%);
             border-top: 1px solid #fff;
             border-bottom: 1px solid rgba(0, 0, 0, 0.15);
             box-shadow: inset 0 2px 0 #fff;
             text-shadow: 0 1px 0 rgba(255, 255, 255, 0.75);
             color: #666;
-            display: flex;
             justify-content: flex-start;
             align-items: center;
         }
@@ -197,7 +252,58 @@
             margin-left: 10px;
             margin-bottom: 0;
         }
-        
+
+        /* Üzenetküldő konténer */
+        .message-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background-color: #f5f6f7;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+            border-top: 1px solid #ddd;
+            z-index: 9999;
+            position: relative;
+            bottom: 0;
+        }
+
+        #messageInput {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #d0d0d0;
+            border-radius: 50px;
+            margin-right: 10px;
+            font-size: 16px;
+            outline: none;
+            background-color: #ffffff;
+            transition: border-color 0.3s ease;
+        }
+
+        #messageInput:focus {
+            border-color: #0078D4;
+        }
+
+        #sendBtn {
+            background-color: #0078D4;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            padding: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        #sendBtn:hover {
+            background-color: #005a8c;
+            transform: scale(1.1);
+        }
+
+        #sendBtn i {
+            font-size: 20px;
+        }
+
+                
     </style>
 </head>
 <body class="container mt-4">
@@ -215,7 +321,25 @@
     </div>
     <div class="sidebar">
         <div class="menubar-container flexcontainer">
-            <span class="status {{ status }}"></span>
+            <div class="custom-select">
+                <div class="selected-option">
+                    <span class="status-icon online"></span>
+                </div>
+                <div class="options-list">
+                    <div class="option" data-value="online">
+                        <span class="status-icon online"></span> 
+                    </div>
+                    <div class="option" data-value="away">
+                        <span class="status-icon away"></span> 
+                    </div>
+                    <div class="option" data-value="blocked">
+                        <span class="status-icon blocked"></span> 
+                    </div>
+                    <div class="option" data-value="offline">
+                        <span class="status-icon offline"></span> 
+                    </div>
+                </div>
+            </div>
             <h3>{{ username }}</h3>
             <a href="/logout" class="btn btn-danger"><img src="../static/icons/Action_16x16.png" alt=""></a>
         </div>
@@ -233,23 +357,79 @@
             <img src="" class="chatIcon" alt="">
             <h2 id="chatTitle"><!-- Válassz egy beszélgetést --></h2>
         </div>
-        <div id="chatBox" style="height: 300px; overflow-y: scroll; background: #f9f9f9; padding: 10px;"></div>
+        <div id="chatBox" style="height: 100vh; overflow-y: scroll;background: #f9f9f9;padding: 10px;scroll-behavior: smooth;"></div>
     
-        <input type="text" id="messageInput" placeholder="Írj üzenetet">
-        <button id="sendBtn" style="margin-top: 10px;">Küldés</button>
+        <div class="message-container">
+            <input type="text" id="messageInput" placeholder="Írj üzenetet">
+            <button id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+        </div>
     </div>
     
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const selectBox = document.querySelector(".custom-select");
+            const selectedOption = document.querySelector(".selected-option");
+            const optionsList = document.querySelector(".options-list");
+
+            selectBox.addEventListener("click", function (event) {
+                event.stopPropagation();
+                optionsList.style.display = optionsList.style.display === "block" ? "none" : "block";
+            });
+
+            document.querySelectorAll(".option").forEach(option => {
+                option.addEventListener("click", function (event) {
+                    event.stopPropagation();
+                    const status = this.getAttribute("data-value");
+                    const iconClass = this.querySelector(".status-icon").classList[1];
+
+                    // Frissíti a kijelzett státuszt
+                    selectedOption.innerHTML = `<span class="status-icon ${iconClass}"></span> ${this.textContent.trim()}`;
+                    optionsList.style.display = "none";
+
+                    // Küldje el a szervernek a státusz frissítését
+                    $.ajax({
+                        url: "/update_status",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({ status: status }),
+                        success: function(response) {
+                            console.log("Státusz sikeresen frissítve:", response);
+                        },
+                        error: function(xhr) {
+                            console.error("Hiba a státusz frissítése során:", xhr.responseText);
+                        }
+                    });
+                });
+            });
+
+            document.addEventListener("click", function (e) {
+                if (!selectBox.contains(e.target)) {
+                    optionsList.style.display = "none";
+                }
+            });
+        });
+
+    </script>
     <script>
         function loadUsers() {
             $.getJSON("/get_users", function(data) {
                 $("#userList").empty();
                 data.forEach(user => {
-                    let statusClass = user.status === "online" ? "status-dot online" : "status-dot offline";
+                    let statusClass = "status offline"; // alapértelmezett
+                    if (user.status === "online") {
+                        statusClass = "status online";
+                    } else if (user.status === "away") {
+                        statusClass = "status away";
+                    } else if (user.status === "blocked") {
+                        statusClass = "status blocked";
+                    } else if (user.status === "in call") {
+                        statusClass = "status in-call";
+                    }
                     $("#userList").append(`
                         <li class="list-group-item user-item" data-username="${user.username}">
                             <img src="${user.profile_pic}" alt="">
                             <span>${user.username}</span>
-                            <span class="${statusClass}"></span>
+                            <span class="spanStatus ${statusClass}"></span>
                         </li>
                     `);
                 });
@@ -258,15 +438,15 @@
     
         function loadMessages(username) {
             // Kérd le a felhasználó adatait, hogy elérd a profilképet
-            $.getJSON("/get_users" ,function(data) {
-                data.forEach(user => {
+            $.getJSON("/get_users", function(data) {
+                let user = data.find(u => u.username === username);
+                if (user) {
                     $(".chatIcon").attr("src", user.profile_pic);
-                    $(".chatIcon").css("display", "block");
-                    $("#chatTitle").text("" + user.username);
-                });
-                // Profilkép beállítása a chatIcon elemhez
-                
+                    $(".chatBox-header").css("display", "flex");
+                    $("#chatTitle").text(user.username);
+                }
             });
+
 
            
 
@@ -277,6 +457,8 @@
                     let bubbleClass = msg.sender === "{{ username }}" ? "message-sent" : "message-received";
                     $("#chatBox").append(`<p class="message-bubble ${bubbleClass}"><strong>${msg.sender}:</strong> ${msg.message}</p>`);
                 });
+
+                $("#chatBox").scrollTop($("#chatBox")[0].scrollHeight);
             });
         }
     
@@ -287,16 +469,24 @@
         });
     
         $("#sendBtn").click(function() {
+            sendMessage();
+        });
+            
+        $("#messageInput").on("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();  // Megakadályozza az új sor létrehozását
+                sendMessage();  // Üzenet küldése
+            }
+        });
+
+        function sendMessage() {
             let receiver = $("#chatBox").attr("data-user");
-            let message = $("#messageInput").val().trim(); // Ellenőrizd az ID-t!
+            let message = $("#messageInput").val().trim();
 
             if (!receiver || !message) {
                 console.error("Hiba: nincs címzett vagy üres üzenet!");
                 return;
             }
-
-
-            
 
             $.ajax({
                 url: "/send_private",
@@ -304,24 +494,24 @@
                 contentType: "application/json",
                 data: JSON.stringify({ receiver: receiver, message: message }),
                 success: function(response) {
-                    
-                    $("#messageInput").val(""); // Input törlése
-                    setTimeout(loadMessages, 100); // Üzenetek frissítése
+                    $("#messageInput").val(""); // Törli az üzenetet
+                    loadMessages(receiver);  // Frissíti az üzenetlistát
                 },
                 error: function(xhr) {
                     console.error("Hiba az üzenetküldés során:", xhr.responseText);
                 }
             });
-        });
+        }
 
 
 
-    
+
+        loadUsers()
         setInterval(loadUsers, 3000);
         setInterval(() => {
             let receiver = $("#chatBox").attr("data-user");
             if (receiver) loadMessages(receiver);
         }, 2000);
-    </script>>
+    </script>
 </body>
-</html></div>
+</html>

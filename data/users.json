@@ -3,13 +3,20 @@
         "username": "Alice",
         "id": 1001,
         "password": "a",
-        "status": "online",
+        "status": "offline",
         "profile_pic": "../static/profilpic.png"
     },
     {
         "username": "Bob",
         "id": 1002,
         "password": "b",
+        "status": "blocked",
+        "profile_pic": "../static/profilpic.png"
+    },
+    {
+        "username": "Kevin",
+        "id": 1002,
+        "password": "k",
         "status": "online",
         "profile_pic": "../static/profilpic.png"
     }
