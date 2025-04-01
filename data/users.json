@@ -3,7 +3,7 @@
         "username": "Alice",
         "id": 1001,
         "password": "a",
-        "status": "online",
+        "status": "offline",
         "profile_pic": "../static/profilpic.png"
     },
     {

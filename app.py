@@ -87,7 +87,7 @@ def chat():
     if not user:
         return redirect("/")
 
-    return render_template("chat.html", username=user["username"], user=user)
+    return render_template("chat.html", username=user["username"], user=user, status=user["status"])
 
 
 @app.route("/get_users")
