@@ -143,7 +143,7 @@ def update_status():
     new_status = data.get("status")
 
     if not new_status:
-        return jsonify({"error": "Invalid status"}), 400
+        return jsonify({"error": "Invalid status"}), 400 
 
     with open(USERS_FILE, "r+") as f:
         users = json.load(f)

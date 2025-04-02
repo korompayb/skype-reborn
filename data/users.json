@@ -17,7 +17,12 @@
         "username": "Kevin",
         "id": 1002,
         "password": "k",
-        "status": "online",
+        "status": "away",
         "profile_pic": "../static/profilpic.png"
+    },
+    {
+        "username": "Berci",
+        "password": "Berci",
+        "status": "online"
     }
 ]

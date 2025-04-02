@@ -246,6 +246,7 @@
             color: #666;
             justify-content: flex-start;
             align-items: center;
+            padding-right: 10px;
         }
 
         #chatTitle {
@@ -303,6 +304,12 @@
             font-size: 20px;
         }
 
+
+        .status-indicator {
+            padding-left: 10px;
+            margin-left: auto;
+            margin-bottom: 0;
+        }
                 
     </style>
 </head>
@@ -356,6 +363,7 @@
         <div class="chatBox-header">
             <img src="" class="chatIcon" alt="">
             <h2 id="chatTitle"><!-- Válassz egy beszélgetést --></h2>
+            <p class="status-indicator"></p>
         </div>
         <div id="chatBox" style="height: 100vh; overflow-y: scroll;background: #f9f9f9;padding: 10px;scroll-behavior: smooth;"></div>
     
@@ -444,6 +452,8 @@
                     $(".chatIcon").attr("src", user.profile_pic);
                     $(".chatBox-header").css("display", "flex");
                     $("#chatTitle").text(user.username);
+                    $(".status-indicator").css("display", "flex");
+                    $(".status-indicator").text(user.status);
                 }
             });
 
